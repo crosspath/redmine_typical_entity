@@ -1,0 +1,28 @@
+<%# klass = crm_entity.classify.constantize %>
+
+<div id="change-<%= journal.id %>" class="<%= journal.css_classes %>">
+<%# easy_cache ['avatar', journal.user] do %>
+  <%= avatar(journal.user) -%>
+<%# end %>
+  <% easy_cache ['issues/journal/details', journal, I18n.locale] do %>
+    <div class="journal-details-container">
+      <h4>
+        <a href="<%= url_for [CityAdsCRM.find_project, journal.journalized] %>#change-<%= journal.id %>">#</a>
+        <%= content_tag('a', '', :name => "note-#{journal.indice}") %>
+        <%= authoring_with_datetime(journal.created_on, journal.user, :label => :label_updated_datetime_by) %>
+      </h4>
+      
+      <% if journal.details.any? %>
+        <ul class="details">
+          <% details_to_strings(journal.details, false, :entity => issue).each do |string| %>
+            <li><%= string -%></li>
+          <% end %>
+        </ul>
+      <% end %>
+    </div>
+  <% end %>
+  <div class="clear"></div>
+  <%= call_hook(:view_journal_show_description_bottom, :journal => journal, :issue => issue ) if !journal.notes.blank? && hook_enabled-%>
+
+  <%= render_notes(issue, journal, {:reply_links => reply_links, :editable => editable}) -%>
+</div>

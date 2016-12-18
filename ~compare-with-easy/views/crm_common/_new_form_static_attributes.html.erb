@@ -1,0 +1,14 @@
+<% modul_uniq_id ||= ''; enable_editor ||= !in_mobile_view?; hidden_fields ||= [] %>
+<%= labelled_fields_for crm_entity, issue do |f| %>
+  <h3 class="issue-static-attributes-heading"><%= l(:label_issue_static_attributes_heading) -%></h3>
+  <p class="issue-subject-field" style="<%='display:none;' if hidden_fields.include?(:name) %>"><%= f.text_field :name, :required => true, :class => 'issue_subject', :tabindex => 10, :autofocus => true, :maxlength => 255 -%></p>
+  <p class="description" style="<%='display:none;' if hidden_fields.include?(:description) %>">
+    <%= f.text_area( :description,
+      :cols => 60,
+      :rows => (issue.description.blank? ? 10 : [[10, issue.description.length / 50].max, 100].min),
+      :accesskey => accesskey(:edit),
+      :id => "#{modul_uniq_id}#{crm_entity}_description",
+      :class => 'wiki-edit', :no_label => !in_mobile_view?, :tabindex => 20).html_safe %>
+    <%= wikitoolbar_for("#{modul_uniq_id}#{crm_entity}_description", :attachment_reminder => true) if enable_editor %>
+  </p>
+<% end %>

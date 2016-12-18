@@ -1,0 +1,128 @@
+<div id="issue-detail" class="">
+  <%= heading_issue(@issue) %>
+
+  <div class="<%= @issue.css_classes %> details">
+    <div id="issue-detail-header">
+      <div id="issue-detail-avatar">
+        <%= avatar(@issue.assigned_to, {:size => '65'}).to_s.html_safe %>
+      </div>
+      <table class="attributes">
+        <%= issue_fields_rows do |rows|
+          rows.left l(:field_assigned_to), (@issue.assigned_to ? link_to_user(@issue.assigned_to) : "-"), :class => 'assigned-to'
+          rows.left l(:field_created_on), format_time(@issue.created_at, true), :class => 'created_on'
+          rows.right(l(:label_added_time_by, :author => ''), link_to_user(@issue.author), :class => 'author')
+          send("render_#{crm_entity}_attributes", rows, @issue)
+        end %>
+
+      </table>
+
+      <%= content_tag(:hr) if @issue.visible_custom_field_values.any? -%>
+      <div class="custom-fields splitcontent">
+        <%= render_show_issue_custom_fields(@issue.visible_custom_field_values, EasySetting.value('show_issue_custom_field_values_layout')) -%>
+      </div>
+      <%= call_hook(:view_issues_show_details_bottom, :issue => @issue) %>
+    </div>
+
+    <% if @issue.description? || @issue.attachments.any? -%>
+      <% if @issue.description? %>
+        <div class="wiki" id="show_issue_description">
+          <p style="text-align: right; margin: 0; padding: 10px 0 0 0" class="floatright">
+            <%= link_to('', quoted_issue_path(@issue), :remote => true, :method => 'post', :title => l(:button_quote), :class => 'icon icon-comment') %>
+            <%= link_to_in_place_notes_editor('', '', { :controller => 'easy_issues', :action => 'description_edit', :id => @issue, :format => 'js' },
+              :title => l(:button_edit), :accesskey => accesskey(:edit), :class => 'icon icon-edit') if User.current.allowed_to?(:edit_issues, @project) || (User.current.allowed_to?(:edit_own_issue, @project) && @issue.author.id == User.current.id) %>
+          </p>
+          <%= textilizable(@issue, :description, {:headings => false, :attachments => @issue.attachments}) %>
+        </div>
+
+      <% end %>
+      <%= link_to_attachments @issue, :thumbnails => true %>
+    <% end -%>
+
+    <%= call_hook(:view_issues_show_description_bottom, :issue => @issue) %>
+  </div>
+
+  <div class="issue-childs">
+    <%= content_tag :h3, l(:label_issue_plural), :class => 'sidebar-style-h3' %>
+    <%= render_crm_issues(crm_entity, @issue) %>
+  </div>
+  
+  <% if @project.module_enabled? 'contacts' %>
+    <%= stylesheet_link_tag 'contacts_issues', :plugin => 'redmine_contacts' %>
+    <div id="contacts">
+      <%= render :partial => "#{crm_entity.pluralize}/contacts", :locals => { :contacts => @issue.contacts } %>
+    </div>
+  <% end %>
+
+  <%= call_hook(:view_issues_show_journals_top, :issue => @issue, :project => @project) %>
+</div>
+
+<% if @journals.present? %>
+  <%= toggling_container('issue-history', User.current, {:heading => l(:label_history)}) do %>
+    <div id="history">
+      <%= render :partial => "#{crm_entity.pluralize}/history", :locals => { :issue => @issue, :journals => @journals } %>
+    </div>
+  <% end %>
+<% end %>
+
+<%= call_hook(:view_issues_show_journals_bottom, :issue => @issue) %>
+
+<div style="clear: both;"></div>
+
+<div class="other-formats links">
+  <% other_formats_links do |f| %>
+    <%= f.link_to 'Atom', :url => {:key => User.current.rss_key}, :title => l(:title_other_formats_links_atom) %>
+    <%= f.link_to 'PDF', :title => l(:title_other_formats_links_pdf) %>
+    <%= f.link_to 'ICS', :title => l(:title_other_formats_links_ics), :caption => 'iCal' %>
+  <% end %>
+</div>
+
+  <div id="update" style="display:none;"></div>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+    var scroll_to = window.location.hash;
+    if (scroll_to && scroll_to == '#update') {
+      ShowAndScrollTo('update', -110);
+      $('#issue-sidebar-link_to-update').removeClass('button-1');$('#issue-sidebar-link_to-update').addClass('button-2');
+      focusWiki('issue_notes');
+    }
+    var journals_to_hide = $(".journal span.expander.issue-journal-details-toggler").closest('.journal').toArray();
+    if ($(journals_to_hide).last()[0] == $(".journal.has-details:last-child").last()[0]) {
+      journals_to_hide.pop(); // all except last
+    }
+    $(journals_to_hide).each(function(index, i) {
+      toggleJournalDetails($(i));
+    })
+    $(".journal span.expander.issue-journal-details-toggler").click(function(event) {
+      expander = $(event.target);
+      toggleJournalDetails(expander.closest(".journal"));
+
+    })
+  });
+  function toggleJournalDetails(journal) {
+    journal.find(".avatar-container img").toggleClass('smallest-avatar')
+    journal.find(".journal-details-container").find('ul').toggle();
+    journal.find(".expander").parent().toggleClass('open');
+  }
+</script>
+
+<% ### PAGE CUSTOMS ########################################################## %>
+
+
+<% html_title @issue.to_s %>
+
+<% content_for :sidebar do %>
+  <div class="issue-sidebar-container fixed-sidebar-box">
+    <%= call_hook(:view_issue_sidebar_top, :issue => @issue) %>
+    <%= render :partial => "#{crm_entity.pluralize}/sidebar", :locals => {:issue => @issue} %>
+    <%= call_hook(:view_issue_sidebar_under_issue_info, :issue => @issue) %>
+    <%= call_hook(:view_issue_sidebar_bottom, :issue => @issue) %>
+  </div>
+<% end %>
+
+<% content_for :header_tags do %>
+  <%= auto_discovery_link_tag(:atom, {:format => 'atom', :key => User.current.rss_key}, :title => @issue.to_s) %>
+<% end %>
+
+<% include_calendar_headers_tags %>
+<% include_attachment_headers_tags %>

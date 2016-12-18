@@ -1,0 +1,20 @@
+<% custom_field_values = @issue.custom_field_values.select{|cfv| cfv.custom_field.show_on_more_form == show_on_more_form} %>
+<div class="splitcontentleft">
+  <% i = 0 %>
+  <% split_on = (custom_field_values.size / 2.0).ceil - 1 %>
+  <% custom_field_values.each do |value| %>
+    <p><%= custom_field_tag_with_label crm_entity, value, :required => @issue.required_attribute?(value.custom_field_id) -%></p>
+    <% if i == split_on -%>
+    </div>
+    <div class="splitcontentright">
+    <% end -%>
+    <% i += 1 -%>
+  <% end -%>
+</div>
+<div style="clear:both;"></div>
+
+<div class="view_issues_edit_form_updatable_attributes_bottom">
+  <%= labelled_fields_for crm_entity, @issue do |f| %>
+    <%= call_hook(:view_issues_edit_form_updatable_attributes_bottom, { :issue => @issue, :form => f, :project => @project, :show_on_more_form => show_on_more_form }) %>
+  <% end %>
+</div>

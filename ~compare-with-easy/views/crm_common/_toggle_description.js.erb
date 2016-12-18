@@ -1,0 +1,12 @@
+<%# LOCALS: crm_entity %>
+
+$("#<%= params[:element] %>").html("<%= j(text_area_tag("#{crm_entity}[description]", @issue.description,
+        :cols => 60,
+        :rows => (@issue.description.blank? ? 10 : [[10, @issue.description.length / 50].max, 100].min),
+        :class => 'wiki-edit',
+        :no_label => true) ) %>");
+
+<% js = wikitoolbar_for('issue_description').to_s.match(/^(\w.+)/) %>
+<%= js[0].html_safe if js %>
+
+$("#description_toggler").remove();

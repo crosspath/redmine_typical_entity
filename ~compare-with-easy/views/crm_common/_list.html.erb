@@ -1,0 +1,49 @@
+<% options ||= Hash.new; modul_uniq_id ||= "#{controller_name}_#{action_name}";uniq_id ||= nil %>
+<%= form_tag({}, :id => 'issues-form') do -%>
+  <%= hidden_field_tag 'back_url', url_for(params), :id => nil %>
+  <table class="list issues anchor">
+    <thead>
+      <tr>
+        <th></th>
+        <th class="checkbox hide-when-print">
+          <%= link_to_function('', "toggleIssuesSelection($(this))", :title => "#{l(:button_check_all)}/#{l(:button_uncheck_all)}", :class => 'icon icon-checked') %>
+        </th>
+        <% query.inline_columns.each do |column| %>
+          <% next if in_mobile_view? && column.name != :name %>
+          <%= options[:disable_sort] ? content_tag(:th, column.caption) : column_header(column) %>
+        <% end %>
+        <th></th>
+      </tr>
+    </thead>
+    <% previous_group = params[:previous_group] || false %>
+    <tbody>
+      <% issue_list(issues) do |issue, level| -%>
+        <% if query.grouped? && (group = query.group_by_column.value(issue)).to_param.to_s != previous_group.to_s %>
+        <% uniq_id = "#{controller_name}_#{action_name}_#{query.group_by_column.name}_#{query.group_by_column.value(issue).hash}_#{query.group_by_column.value(issue).to_param.to_s}" if query.grouped? %>
+          <% reset_cycle %>
+          <%= filter_plus_button(group.blank?, query.inline_columns.size + 2, uniq_id, format_html_entity_attribute(issue.class, query.group_by_column, query.group_by_column.value(issue), {:entity => issue}), query.entity_count_by_group[group]) %>
+          <% previous_group = group.to_param %>
+        <% end %>
+        <tr id="issue-<%= issue.id %>" class="hascontextmenu <%= cycle('odd', 'even') %> <%= issue.css_classes(level) -%> easy-to-do-list-source" <%= detect_hide_elements(uniq_id) if uniq_id %> onclick="javascript:GoToURL('<%= url_for({:controller => crm_entity.pluralize, :action => 'show', :id => issue}) -%>', event)">
+          <td class="easy-query-additional-beginning-buttons"><%= easy_issue_query_additional_beginning_buttons(issue, options) if respond_to? :easy_issue_query_additional_beginning_buttons -%></td>
+          <td class="checkbox hide-when-print"><%= check_box_tag("ids[]", issue.id, false, :id => nil) %></td>
+          <% query.inline_columns.each do |column| %>
+            <% next if User.current.in_mobile_view && column.name != :name %>
+            <td class="<%= column.css_classes %>">
+              <%= format_html_entity_attribute(issue.class, column, column.value(issue), {:entity => issue}) %>
+            </td>
+          <% end %>
+          <td class="easy-query-additional-ending-buttons fast-icons"><%= crm_query_additional_ending_buttons(crm_entity, issue, options) if respond_to? :crm_query_additional_ending_buttons -%></td>
+        </tr>
+        <% query.block_columns.each do |column|
+          if (text = format_html_entity_attribute(issue.class, column, column.value(issue), {:entity => issue})) && text.present? -%>
+            <tr class="<%= current_cycle %>">
+              <td colspan="<%= query.inline_columns.size + 3 %>" class="<%= column.css_classes %>"><%= text %></td>
+            </tr>
+          <% end -%>
+        <% end -%>
+      <% end -%>
+    </tbody>
+  </table>
+<% end -%>
+<%= render :partial => 'easy_queries/easy_query_tooltip_box' -%>

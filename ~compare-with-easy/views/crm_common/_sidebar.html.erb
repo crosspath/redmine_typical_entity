@@ -1,0 +1,28 @@
+<% unless issue.nil? %>
+  <div class="box issue-info <%= 'redmine-classic' unless current_theme && current_theme.is_easy_theme? %>">
+    <%= call_hook(:view_issue_sidebar_issue_info, :issue => issue) %>
+    <div class="issue_actions">
+      <div>
+        <%= link_to(l(:button_update), send("edit_project_#{crm_entity}_path", @project, @issue), {
+          :class => "icon icon-edit #{params[:dd].blank? ? 'button-1' : 'button-2'}",
+          :id => 'issue-sidebar-link_to-update',
+          :remote => true,
+          :accesskey => accesskey(:issue_edit),
+          :title => l(:sidebar_issue_button_update)
+        }) %>
+      </div>
+      <div>
+        <%= link_to(l(:button_delete), send("project_#{crm_entity}_path", @project, @issue), {
+          :method => :delete,
+          :data => {:confirm => l(:text_destroy_confirmation)},
+          :class => "icon icon-del button-2",
+          :id => 'issue-sidebar-link_to-update',
+          :accesskey => accesskey(:issue_delete),
+          :title => l(:sidebar_issue_button_delete)
+        }) %>
+      </div>
+      <%= call_hook(:view_issue_sidebar_issue_info_before_menu_more, :issue => issue) %>
+      <%= call_hook(:view_issue_sidebar_issue_info_after_menu_more, :issue => issue) %>
+    </div>
+  </div>
+<% end %>

@@ -1,0 +1,26 @@
+<% if issues && issues.any? %>
+  <% block_name ||= '' %>
+  <%= form_tag({}) do %>
+    <table class="list issues">
+      <thead>
+        <tr>
+          <th></th>
+          <th style="display:none"></th>
+          <th><%= l(:field_issue) -%></th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <%- issue_list(issues) do |issue, level| -%>
+          <tr id="issue-<%= issue.id %>" class="hascontextmenu <%= cycle('odd', 'even') %> <%= issue.css_classes(level) %> done_<%= issue.done_ratio %>" onclick="javascript:GoToURL('<%= url_for({:controller => crm_entity.pluralize, :action => 'show', :id => issue}) -%>', event)">
+            <td class="easy-query-additional-beginning-buttons"><%= easy_issue_query_additional_beginning_buttons(issue, {:block_name => block_name}) if respond_to?(:easy_issue_query_additional_beginning_buttons) -%></td>
+            <td style="display:none"><input name="ids[]" type="checkbox" value="<%= issue.id %>" /></td>
+            <td class="subject priority-<%= issue.priority.position %>" title="<%= l(:label_show_issue_info, :issuename => issue.subject)%>"><%= link_to h(truncate(issue.subject, :length => 60)), { :controller => 'issues', :action => 'show', :id => issue }, :title => l(:label_show_issue_info, :issuename => issue.subject) %></td>
+            <td class="easy-query-additional-ending-buttons"><%= easy_issue_query_additional_ending_buttons(issue, {:block_name => block_name}) -%></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+  <%= render :partial => 'easy_queries/easy_query_tooltip_box', :locals => {:block_name => block_name} -%>
+<% end %>

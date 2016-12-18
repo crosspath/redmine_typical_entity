@@ -1,0 +1,25 @@
+$('#update').html("<%= j render(:partial => 'edit_form') %>");
+setupFileDrop();
+initFileUploads();
+ShowAndScrollTo('update', -130);
+$("#issue-sidebar-link_to-update").removeClass('button-1').addClass('button-2');
+$('.issue-edit-hidden-attributes').addClass('button-2');
+
+// -- add clipboard form
+$("#content").append("<%= j render(:partial => 'clipboard_image_paste/add_form') %>");
+// -- init clipboard
+var imageForm = $("#cbp_images_form");
+if (imageForm[0]) {
+  imageForm.detach();
+  var attachFields = $("#attachments_fields");
+  if (attachFields[0]) {
+    addFile_container = attachFields.next("span.add_attachment");
+    if (addFile_container[0]) {
+      addFile_container = attachFields.next("span.add_attachment");
+      addFile_container.after(imageForm);
+    }
+  }
+}
+
+// rating stars
+$('input[type=radio].star').rating();

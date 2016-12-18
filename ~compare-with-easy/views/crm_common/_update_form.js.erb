@@ -1,0 +1,7 @@
+<% if @issue.new_record? %>
+  $("#attributes").html("<%= escape_javascript(render(:partial => 'new_form_updatable_attributes', locals: {crm_entity: crm_entity})) %>");
+  <%= call_hook :view_new_issue_update_form_js, {:issue => @issue} %>
+<% else %>
+  $("#attributes").html("<%= escape_javascript(render(:partial => 'edit_form_updatable_attributes', :locals => {:show_on_more_form => true})) %>");
+  $("#visible-custom-fields").html("<%= escape_javascript(render(:partial => 'edit_form_updatable_attributes', :locals => {:show_on_more_form => false})) %>");
+<% end %>

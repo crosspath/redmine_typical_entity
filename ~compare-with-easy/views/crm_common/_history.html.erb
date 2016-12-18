@@ -1,0 +1,17 @@
+<%
+ents = crm_entity.pluralize
+reply_links = authorize_for(ents, 'edit')
+hook_enabled = true if hook_enabled.nil? # nezobrazovat KB tlacitka pokud se jedna o prispevek KB
+editable = true if editable.nil? -%>
+<div class="bubble" id="history-show-bubble">
+  <% journals.each do |journal| %>
+    <%= render :partial => "#{ents}/journal", :locals => {:issue => issue, :journal => journal, :reply_links => reply_links, :editable => editable, :hook_enabled => hook_enabled} %>
+    <%= call_hook(:view_issues_history_journal_bottom, { :journal => journal }) -%>
+  <% end %>
+  <script type="text/javascript">
+    $(function() {
+      if (document.location.hash.length)
+        ShowAndScrollTo(document.location.hash.substr(1), -200);
+    });
+  </script>
+</div>

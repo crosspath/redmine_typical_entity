@@ -1,0 +1,4 @@
+<div id="issue_descr_fields" <%= 'style="display:none"'.html_safe unless @issue.errors.any? %>>
+  <%= render :partial => "#{crm_entity.pluralize}/edit_issue_attributes_hidden", :locals => {:f => f} %>
+</div>
+

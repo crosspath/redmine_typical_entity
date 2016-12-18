@@ -1,0 +1,38 @@
+<%# LOCALS: crm_entity %>
+
+<h2><%=l(:"label_#{crm_entity}_new")%></h2>
+
+<%= call_hook(:view_issues_new_top, {:issue => @issue}) %>
+<% ents = crm_entity.pluralize %>
+
+<%= labelled_form_for @issue, :url => send("project_#{ents}_path", @project),
+  :html => {:id => 'issue-form', :multipart => true, :class => 'tabular new-issue-form'} do |f| %>
+  <%= error_messages_for @issue %>
+  <div class="box issue_fields tabular">
+    <div id="all_fields" class="container_12">
+      <div id="issue_descr_text" class="issue_common_static_fields grid_8 no-watchers alpha omega ">
+        <%= render :partial => "#{ents}/new_form_static_attributes", :locals => {:issue => @issue} -%>
+        <div class="issue_submit_buttons">
+          <%= submit_tag l(:crm_button_create), :class => 'button-1', :tabindex => 900 %>
+          <%= submit_tag l(:crm_button_create_and_continue), :name => 'continue', :class => 'link_new icon-save-issue button-2', :tabindex => 910 %>
+          <%= javascript_tag "$('#issue_subject').focus();" %>
+        </div>
+      </div>
+      <div id="issue-dependent-fields" class="issue-dependent-fields grid_4 alpha">
+        <%= render :partial => "#{ents}/new_form_dependent_fields" %>
+      </div>
+    </div>
+
+    <div style="clear: both"></div>
+  </div>
+<% end %>
+
+<div id="preview" class="wiki"></div>
+
+<% ### PAGE CUSTOMS ########################################################## %>
+
+<% content_for :header_tags do %>
+  <%= robot_exclusion_tag %>
+<% end %>
+
+<% include_calendar_headers_tags %>

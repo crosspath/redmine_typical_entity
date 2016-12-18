@@ -1,0 +1,35 @@
+<%= form_tag({}, :id => 'issues-form') do -%>
+  <%= hidden_field_tag 'back_url', url_for(params) %>
+  <table class="list issues">
+    <thead>
+      <tr>
+        <th style="display:none"></th>
+        <% query.columns.each do |column| -%>
+          <th><%= column.caption -%></th>
+        <% end -%>
+        <th></th>
+      </tr>
+    </thead>
+    <% previous_group = false -%>
+    <tbody>
+      <%- issue_list(issues) do |issue, level| 
+        uniq_id = ''
+        if query.grouped?
+          group_column = query.group_by_column
+          group_value = group_column.value(issue)
+          uniq_id = "#{controller_name}_#{action_name}_#{block_name}_#{group_column.name}_#{group_value.hash}"
+          if group_value != previous_group
+            reset_cycle -%>
+            <%= filter_plus_button(group_value.blank?, query.columns.size + 2, uniq_id, format_html_entity_attribute(issue.class, group_column, group_column.value(issue), {:entity => issue}), query.entity_count_by_group[group_value], user) %>
+            <% previous_group = group_value %>
+          <% end %>
+        <% end %>
+        <tr id="issue-<%= issue.id %>" class="hascontextmenu <%= cycle('odd', 'even') %> <%= issue.css_classes(level) -%> " <%= detect_hide_elements(uniq_id,user) %> onclick="javascript:GoToURL('<%= url_for({:controller => crm_entity.pluralize, :action => 'show', :id => issue}) -%>', event)">
+          <td class="checkbox hide-when-print" style="display:none"><%= check_box_tag("ids[]", issue.id, false, :id => nil) %></td>
+          <% query.columns.each do |column| %><%= content_tag 'td', format_html_entity_attribute(issue.class, column, column.value(issue), {:entity => issue}), :class => column.name %><% end %>
+          <td class="buttons"><%= link_to(l(:button_update), {:controller => 'issues', :action => 'edit', :id => issue}, :class => 'issue-update button-1', :title => l(:button_update)) %></td>
+        </tr>
+      <% end -%>
+    </tbody>
+  </table>
+<% end -%>

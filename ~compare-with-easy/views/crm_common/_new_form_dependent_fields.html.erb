@@ -1,0 +1,12 @@
+<div class="issue_updatable_fields grid_4 omega">
+  <div id="attributes" class="attributes ">
+    <%= render :partial => 'new_form_updatable_attributes', :locals => {:priorities => @priorities, :allowed_statuses => @allowed_statuses, :issue => @issue, :project => @project, :select_project => !params[:project_id], :crm_entity => crm_entity} %>
+  </div>
+  <div id="attachments-form">
+    <% if @project %>
+      <h4 class="issue-attachments-heading"><%= l(:label_issue_attachments_heading) -%></h4>
+      <%= render :partial => 'attachments/form', :locals => {:container => @issue} %>
+    <% end %>
+  </div>
+  <%= call_hook(:view_issue_new_form_atachments_after, {:issue => @issue, :project => @project}) %>
+</div>

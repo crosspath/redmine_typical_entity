@@ -1,0 +1,22 @@
+<%# LOCALS: crm_entity %>
+
+<% issue ||= @issue; project ||= @project
+unless defined?(select_project)
+  select_project = controller_name == 'easy_issues'
+end
+ckeditor_update_src = "if (! (typeof CKEDITOR === 'undefined') ) " +
+                "for ( instance in CKEDITOR.instances ) CKEDITOR.instances[instance].updateElement(); "
+-%>
+<%= labelled_fields_for crm_entity, issue do |f| %>
+  <h3 class="issue-updatable-attributes-heading"><%= l(:label_issue_updatable_attributes_heading) -%></h3>
+  <%= call_hook(:view_issues_form_details_top, { :issue => issue, :form => f, :project => project }) %>
+  <% if project %>
+    <%= render_visible_crm_attribute_for_edit_assigned_to_id(crm_entity, issue, f, {:class => 'attribute'}) %>
+    <% if issue.safe_attribute? 'custom_field_values' %>
+      <% issue.custom_field_values.each_with_index do |value, idx| %>
+        <p class="new-issue-custom-field"><%= custom_field_tag_with_label crm_entity, value, {}, {:tabindex => (200 + 10 * idx)} %></p>
+      <% end %>
+    <% end %>
+  <% end %>
+  <%= call_hook(:view_issues_form_details_bottom, { :issue => issue, :form => f, :project => project }) %>
+<% end %>

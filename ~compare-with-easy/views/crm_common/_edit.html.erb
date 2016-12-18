@@ -1,0 +1,11 @@
+<%= heading_issue(@issue) %>
+
+<%= render :partial => 'edit_form' %>
+
+<% ### PAGE CUSTOMS ########################################################## %>
+
+<% content_for :header_tags do %>
+  <%= robot_exclusion_tag %>
+<% end %>
+
+<% include_calendar_headers_tags %>

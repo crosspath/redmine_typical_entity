@@ -1,0 +1,83 @@
+<%  if !@issue.blank? && User.current.allowed_to?(:view_contacts, @project)  %>
+
+<div id="issue_contacts">  
+  <%= stylesheet_link_tag 'contacts', plugin: 'cityads_crm' %>
+  <% ents = crm_entity.pluralize %>
+
+  <div class="contextual">    
+    <%= link_to l(:button_add), 
+    {:controller => "#{ents}_contacts", :action => 'add', :"#{crm_entity}_id" => @issue, :project_id => @project},
+    :class => 'button-1',
+    :remote => true,
+    :remote => true if User.current.allowed_to?({:controller => "#{ents}_contacts", :action => 'add'}, @project) %>
+  </div>
+
+
+  <h3><%= l(:label_contact_plural) %> </h3>  
+
+  <% unless !(@show_form == "true") %>
+  <%= form_tag(
+  {:controller => "#{ents}_contacts", :action => 'add', :"#{crm_entity}_id" => @issue, :project_id => @project},
+  :remote => true,
+  :method => :post,
+  :id => 'add-contact-form') do %>
+
+  <table><tr><td>
+  <%=
+  easy_select_tag('contact_id', {:id => ''}, nil,
+  url_for(:controller => 'auto_completes', :action => 'contacts')+'?in_issue=1&',
+  {
+    :include_blank => true, :no_label_no_data => true, :force_autocomplete => true,
+    :html_options => {:type=>'search',:placeholder => l(:label_person), :title => l(:label_person), :onfocus => '$(\'#contact_id\').val(\'\');'}
+  }
+  )
+  %></td><td><%= check_box_tag "#{ents}_contact[dm]" %> <%= label_tag "#{ents}_contact_dm", l(:field_dm) %></td>
+
+  <td><%= submit_tag l(:button_add) %></td>
+  <td><%= link_to l(:button_cancel), {}, :onclick => "$('#add-contact-form').hide(); return false;" %></td>
+  </tr></table>
+  <% end %>
+  <% end %>
+
+  <%= form_tag(
+  {:controller => "#{ents}_contacts", :action => 'update', :"#{crm_entity}_id" => @issue, :project_id => @project},
+  :remote => true,
+  :method => :put) do %>
+  <table id="contacts_table">
+    <% @issue.attached_contacts.each do |contact, joined| %>
+    <tr id="contact_<%= contact.id%>">
+      <td><%= contact_tag(contact, type: 'avatar') %></td>
+      <td><%= contact_tag(contact, type: 'plain') %></td>
+      <td><%= "(#{contact.job_title})" unless contact.job_title.blank? %></td>
+      <td><% id = "contact_#{contact.id}_dm" %>
+        <%= check_box_tag(id, 1, joined.dm) %> <%= label_tag id, l(:field_dm) %></td>
+      <td><%= contact.phone.gsub(',', ', ') unless contact.phone.blank? %></td>
+      <td><%= mail_to(contact.email) unless contact.email.blank? %></td>
+      <td><% if User.current.allowed_to?(:delete_contacts, @project) %>
+        <%= link_to(image_tag('delete.png'),
+        {:controller => "#{ents}_contacts", :action => 'delete', :"#{crm_entity}_id" => @issue, :project_id => @project, :contact_id => contact.id},
+        :remote => true,
+        :method => :delete,
+        :confirm => l(:text_are_you_sure),
+        :class  => "delete",
+        :title => l(:button_delete) ) %>
+      <% end %></td>
+    </tr>
+    <% end %>
+  </table>
+  <%= hidden_field_tag :contact_id %><%= hidden_field_tag "#{ents}_contact[dm]" %>
+  <script type="text/javascript">
+    $('#contacts_table :checkbox').on('change', function(t) {
+      try {
+        t = t.target;
+        $('#contact_id').val(t.id.split('_')[1]);
+        $('#<%= "#{ents}_contact_dm" %>').val(t.checked && t.value);
+        $('#contacts_table').parents('form').submit();
+      } catch (e) { alert(e); }
+    });
+  </script>
+  <% end %> 
+
+</div>    
+
+<% end %>

@@ -1,0 +1,82 @@
+<h2><%= @copy ? l(:button_copy) : l(:label_bulk_edit) %></h2>
+
+<ul id="bulk-selection">
+  <% @issues.each do |issue| %>
+    <%= content_tag 'li', link_to(issue.to_s, issue, class: issue.css_classes) %>
+  <% end %>
+</ul>
+
+<%= form_tag(send("bulk_update_project_#{crm_entity.pluralize}_path", project_id: CityAdsCRM.find_project), :id => 'bulk_edit_form') do %>
+  <%= hidden_field_tag('back_url', params[:back_url]) if params[:back_url] -%>
+  <%= @issues.collect {|i| hidden_field_tag('ids[]', i.id)}.join("\n").html_safe %>
+  <div class="box tabular">
+    <fieldset class="attributes">
+
+      <div class="splitcontentleft">
+        <% if @safe_attributes.include?('assigned_to_id') -%>
+          <p>
+            <label for='issue_assigned_to_id'><%= l(:field_assigned_to) %></label>
+            <%= select_tag("#{crm_entity}[assigned_to_id]", content_tag('option', l(:label_no_change_option), :value => '') +
+                content_tag('option', l(:label_nobody), :value => 'none') +
+                principals_options_for_select(@assignables)) %>
+          </p>
+        <% end %>
+
+        <% @custom_fields.each do |custom_field| %>
+          <p><label><%= h(custom_field.translated_name) %></label><%= custom_field_tag_for_bulk_edit(crm_entity, custom_field, @projects) %></p>
+        <% end %>
+
+        <% if @copy && @attachments_present %>
+          <p>
+            <label for='copy_attachments'><%= l(:label_copy_attachments) %></label>
+            <%= check_box_tag 'copy_attachments', '1', true %>
+          </p>
+        <% end %>
+
+        <% if @copy && @subtasks_present %>
+          <p>
+            <label for='copy_subtasks'><%= l(:label_copy_subtasks) %></label>
+            <%= check_box_tag 'copy_subtasks', '1', true %>
+          </p>
+        <% end %>
+
+        <% more_attributes = %w{left right}.map { |x| "#{crm_entity.pluralize}/bulk_edit_#{x}" } %>
+        <%= begin
+            render more_attributes[0]
+          rescue ActionView::MissingTemplate
+            ''
+          end
+        %>
+      </div>
+
+      <div class="splitcontentright">
+        <%= begin
+            render more_attributes[1]
+          rescue ActionView::MissingTemplate
+            ''
+          end
+        %>
+      </div>
+
+    </fieldset>
+
+    <fieldset>
+      <legend><%= l(:field_notes) %></legend>
+      <%= text_area_tag 'notes', @notes, :cols => 60, :rows => 10, :class => 'wiki-edit' -%>
+      <%= wikitoolbar_for 'notes' unless in_mobile_view? -%>
+    </fieldset>
+  </div>
+
+  <p>
+    <% if @copy %>
+      <%= hidden_field_tag 'copy', '1' %>
+      <%= submit_tag l(:button_copy), :class => 'button-1' %>
+      <%= submit_tag l(:button_copy_and_follow), :name => 'follow', :class => 'button-2' %>
+    <% elsif @target_project %>
+      <%= submit_tag l(:button_move), :class => 'button-1' %>
+      <%= submit_tag l(:button_move_and_follow), :name => 'follow', :class => 'button-2' %>
+    <% else %>
+      <%= submit_tag l(:button_submit), :class => 'button-1' %>
+    <% end %>
+  </p>
+<% end %>

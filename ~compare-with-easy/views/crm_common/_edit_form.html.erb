@@ -1,0 +1,46 @@
+<% ents = crm_entity.pluralize %>
+<%= labelled_form_for @issue, :url => send("project_#{crm_entity}_path", @project, @issue), :html => {:id => 'issue-form', :multipart => true, :class => 'edit-issue-form'} do |f| %>
+  <%= error_messages_for @issue %>
+  <%= render :partial => "#{ents}/conflict" if @conflict %>
+  <%= hidden_field_tag('back_url', params[:back_url]) unless params[:back_url].blank? %>
+  <div class="box">
+    <fieldset class="tabular">
+      <h4><%= link_to_function l(:label_change_properties), "$('#issue_descr_fields').fadeToggle('fast')", :class => 'issue-edit-hidden-attributes icon icon-edit' %></h4>
+      <%= render :partial => "#{ents}/edit_issue_attributes", :locals => {:f => f} %>
+    </fieldset>
+    <div class="tabular edit-issue-attributes-visible">
+      <%= send("render_visible_#{crm_entity}_attributes_for_edit", @issue, f) %>
+    </div>
+    <div style="clear:both"></div>
+    <%= call_hook(:view_issues_form_details_bottom, { :issue => @issue, :form => f, :project => @project }) %>
+    <div class="edit-form-bottom-split-editor-n-files">
+      <div class="splitcontentleft">
+        <fieldset class="fieldset-edit-textarea">
+          <%= content_tag(:legend, l(:label_comment)) if in_mobile_view? -%>
+          <div id="issue_edit_textarea">
+            <%= f.text_area :notes, :cols => 60, :rows => 10, :class => 'wiki-edit', :no_label => true %>
+            <%= wikitoolbar_for("#{crm_entity}_notes", :attachment_reminder => true) unless in_mobile_view? %>
+            <%= call_hook(:view_issues_edit_notes_bottom, { :issue => @issue, :notes => @notes, :form => f }) %>
+          </div>
+        </fieldset>
+      </div>
+      <div class="issue-attachments-container splitcontentright">
+        <% unless in_mobile_view? %>
+          <%= render :partial => 'attachments/form', :locals => {:container => @issue} -%>
+        <% end %>
+        <div class="issue_edit_submit_buttons">
+          <%= f.hidden_field :lock_version -%>
+          <%= submit_tag l(:button_issue_submit), :class => 'button-1', :accesskey => accesskey(:issue_submit) -%>
+        </div>
+      </div>
+      <div style="clear:both"></div>
+    </div>
+  </div>
+  <script type="text/javascript">
+    $(function() {
+      $('.issue-edit-hidden-attributes').addClass('button-2');
+    });
+  </script>
+<% end %>
+
+<div id="preview" class="wiki"></div>

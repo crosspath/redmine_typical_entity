@@ -1,0 +1,20 @@
+var i = $('#<%= "#{params[:block_name]}-#{params[:uniq_id]}" %>easy-query-tooltip-box');
+
+if (i.length <= 0) {
+  $("#content").append('<%= escape_javascript render(:partial => 'easy_queries/easy_query_tooltip_box', :locals => {:block_name => params[:block_name], :uniq_id => params[:uniq_id]}) %>');
+  i = $('#<%= "#{params[:block_name]}-#{params[:uniq_id]}" %>easy-query-tooltip-box');
+}
+
+el = $("#<%= "#{params[:block_name]}-#{params[:uniq_id]}easy-query-tooltip-box-content" %>");
+el.html("");
+
+<% if @issue.journals.any? %>
+  el.html("<%= escape_javascript(render :partial => "#{crm_entity.pluralize}/journal", :locals => {:issue => @issue, :journal => @issue.journals.last, :reply_links => false, :editable => false, :hook_enabled => false}) -%>");
+<% else %>
+  el.html("<%= j content_tag(:p, l(:label_no_data), :class => 'nodata') %>");
+<% end %>
+
+i.fadeIn();
+el.find('.easy-journal-tools').remove();
+var link = $('#<%= "#{params[:block_name]}#{params[:uniq_id]}link-to-easy-issues-render-last-journal-#{@issue.id}" %>');
+i.css({'top' : link.offset().top + 'px', 'left': (link.offset().left - 500) + 'px'});

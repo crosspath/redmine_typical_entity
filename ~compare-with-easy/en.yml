@@ -1,0 +1,58 @@
+en:
+  project_module_plugin_name: Plugin Name
+  permission_view_crm: "View advertisers, domains and leads"
+  permission_manage_crm: "Edit records"
+  permission_create_leads_from_domains: "Create leads from domains list"
+  permission_manage_crm_settings: "Edit settings"
+  
+  easy_lookup:
+    acc:
+      label: Advertiser
+    lead:
+      label: Lead
+  field_acc: Advertiser
+  field_lead: Lead
+  acc_query:
+    easy_lookup:
+      name:
+        acc:
+          default: "Select advertiser"
+          issue_relation: "Select advertiser"
+  lead_query:
+    easy_lookup:
+      name:
+        lead:
+          default: "Select lead"
+          issue_relation: "Select lead"
+  
+  label_acc_index: Advertisers
+  label_acc_new: "New advertiser"
+  label_domain_index: Domains
+  label_lead_index: Leads
+  label_lead_new: "New lead"
+  label_bulk_edit: Bulk edit
+  
+  crm_button_create: "Save"
+  crm_button_create_and_continue: "Save and continue"
+  text_destroy_confirmation: "Are you sure you want to delete it?"
+  
+  field_url: Site/Domain
+  field_dm: DM
+  
+  label_lead_status_plural: "Lead statuses"
+  field_next_statuses: "Next statuses"
+  field_require_comment: "Require comment"
+  field_check_contacts: "Require filled with contacts"
+  field_lead_status: Status
+  
+  update_domain_fail: "An error occurred when updating the lead's properties on the domains server [#%{id}] %{name}"
+  update_domains_table: "Lead [#%{id}] %{name}"
+  label_update_domain_fail: "Error reports when saving and deleting leads"
+  label_lead_add: "Creating leads"
+  label_lead_edit: "Updating leads"
+  
+  error_lead_status_role_id: To set the status "%{status}" you should have role "%{required}"
+  error_lead_status_check_contacts: To set the status "%{status}" you should define contacts and identify decision maker
+  error_lead_status_comment: To set the status "%{status}" you should enter comment
+  error_lead_status_empty: The lead should have a status
+  
