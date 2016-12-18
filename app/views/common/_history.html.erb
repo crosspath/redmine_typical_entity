@@ -1,0 +1,41 @@
+<% if @journals.present? %>
+    <div id="history">
+      <% @journals.each do |journal| %>
+          <div id="change-<%= journal.id %>" class="<%= journal.css_classes %>">
+            <%= avatar(journal.user) -%>
+            <div class="journal-details-container">
+              <h4>
+                <a href="<%= url_for @object %>#change-<%= journal.id %>">#</a>
+                <%= content_tag('a', '', :name => "note-#{journal.indice}") %>
+                <%= link_to_user journal.user %>: <%= journal.created_on %>
+              </h4>
+
+              <% if journal.details.any? %>
+                  <ul class="details">
+                    <% details_to_strings(journal.details, false, :entity => @object).each do |string| %>
+                        <li><%= string -%></li>
+                    <% end %>
+                  </ul>
+              <% end %>
+            </div>
+
+            <% if journal.notes.present? %>
+                <div class="wiki">
+                  <div class="contextual">
+                    <%= link_to(image_tag('comment.png'),
+                                {:controller => 'journals', :action => 'new', :id => @object, :journal_id => journal},
+                                :remote => true, :method => 'post', :title => l(:button_quote)) %>
+                    <% if User.current.admin? %>
+                        <% url_edit_journal = {:controller => 'journals', :action => 'edit', :id => journal, :format => 'js'} %>
+                        <%= link_to image_tag('edit.png'), '#',
+                                    {:title => l(:button_edit),
+                                     :onclick => "$.ajax({url: '#{url_for(url_edit_journal)}', type: 'get'}); return false;"} %>
+                    <% end %>
+                  </div>
+                  <%= textilizable(journal, :notes) %>
+                </div>
+            <% end %>
+          </div>
+      <% end %>
+    </div>
+<% end %>
